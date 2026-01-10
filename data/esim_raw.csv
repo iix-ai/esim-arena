@@ -1,11 +1,11 @@
-Provider,Price_Monthly,Server_Count,No_Logs,Streaming_Support,Money_Back,Affiliate_Link,Badge
-NordVPN,$3.99,6000+,Audit Verified,"Netflix, Disney+, Hulu",30 Days,https://nordvpn.com,Best Overall
-ExpressVPN,$8.32,3000+,Audit Verified,"Netflix, Amazon Prime, BBC iPlayer",30 Days,https://expressvpn.com,Fastest Speeds
-Surfshark,$2.49,3200+,Audit Verified,"Netflix, Disney+, HBO Max",30 Days,https://surfshark.com,Best Value
-CyberGhost,$2.19,9000+,Yes,"Netflix, Hulu, YouTube",45 Days,https://cyberghostvpn.com,Most Servers
-Private Internet Access,$2.19,35000+,Audit Verified,"Netflix, Amazon Prime",30 Days,https://privateinternetaccess.com,
-Proton VPN,$4.99,2900+,Audit Verified,"Netflix, Disney+",30 Days,https://protonvpn.com,Most Secure
-Mullvad VPN,$5.50,800+,Audit Verified,"YouTube, Twitch",30 Days,https://mullvad.net,
-IPVanish,$3.99,2000+,Yes,"Netflix, Hulu, ESPN",30 Days,https://ipvanish.com,
-Windscribe,$4.08,500+,Audit Verified,"Netflix, Disney+",3 Days,https://windscribe.com,
-TunnelBear,$3.33,5000+,Audit Verified,"YouTube, Twitch",Free Tier Available,https://tunnelbear.com,User-Friendly
+Provider,Plan_Data,Validity_Days,Price,Countries_Covered,Network_Speed,Activation_Type,Affiliate_Link,Badge
+Airalo,10GB,30 Days,$25,100+ Countries,5G/4G,QR Code,https://www.airalo.com,Best Value
+Holafly,Unlimited,15 Days,$47,160+ Countries,5G/4G,QR Code,https://holafly.com,Unlimited Data
+Nomad,20GB,30 Days,$35,120+ Countries,5G/4G,QR Code,https://www.nomadinternet.com,High Data
+GigSky,5GB,30 Days,$20,90+ Countries,4G/LTE,QR Code,https://www.gigsky.com,Budget Friendly
+Keepgo,3GB,365 Days,$49,80+ Countries,4G/LTE,QR Code,https://www.keepgo.com,Long Validity
+SimOptions,15GB,30 Days,$30,130+ Countries,5G/4G,QR Code,https://www.simoptions.com,Regional Focus
+TravelSim,8GB,30 Days,$28,70+ Countries,4G/LTE,QR Code,https://www.travelsim.com,Established Provider
+eSIM.net,12GB,30 Days,$32,110+ Countries,5G/4G,QR Code,https://www.esim.net,Balanced Plan
+Flexiroam,7GB,30 Days,$26,100+ Countries,4G/LTE,QR Code,https://www.flexiroam.com,Flexible Options
+Ubigi,10GB,30 Days,$29,150+ Countries,5G/4G,QR Code,https://www.ubigi.com,Global Coverage
