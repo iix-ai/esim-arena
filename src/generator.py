@@ -4,7 +4,7 @@ import json
 import datetime
 
 # ===========================
-# 1. 配置读取 (自动识别 VPN 或 eSIM)
+# V3.1: 修复 GA 代码遗漏，增加配置读取灵活性
 # ===========================
 def load_config():
     config = {
@@ -16,10 +16,9 @@ def load_config():
         "data_file": "data.csv",
         "icon": "⚡", 
         "year": "2026",
-        "contact_email": "hello@ii-x.com"
+        "google_analytics_id": "" 
     }
     
-    # 优先读取 config.json
     if os.path.exists('config.json'):
         try:
             with open('config.json', 'r', encoding='utf-8') as f:
@@ -28,7 +27,6 @@ def load_config():
         except Exception as e:
             print(f"⚠️ Config Error: {e}")
             
-    # 智能修正：确保 data 目录存在
     if not os.path.exists('data'):
         os.makedirs('data')
         
@@ -36,12 +34,21 @@ def load_config():
 
 CONFIG = load_config()
 
-# ===========================
-# 2. 核心页面生成器
-# ===========================
 def generate_site():
-    print(f"🔄 Building V3.0 Site: {CONFIG['site_name']}...")
+    print(f"🔄 Building V3.1 Site: {CONFIG['site_name']}...")
     
+    # --- GA 代码注入逻辑 ---
+    ga_script = ""
+    if CONFIG['google_analytics_id']:
+        ga_id = CONFIG['google_analytics_id']
+        ga_script = f"""<script async src="https://www.googletagmanager.com/gtag/js?id={ga_id}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{ga_id}');
+    </script>"""
+
     # --- 读取数据 ---
     file_path = os.path.join('data', CONFIG.get('data_file', 'data.csv'))
     rows = []
@@ -55,8 +62,6 @@ def generate_site():
                 rows = list(reader)
             except StopIteration:
                 pass
-    else:
-        print(f"⚠️ Warning: Data file {file_path} not found. Generating empty template.")
 
     # --- 准备 HTML 组件 ---
     nav_html = f"""
@@ -85,8 +90,7 @@ def generate_site():
     </footer>
     """
 
-    # --- 生成主页 index.html ---
-    # (此处省略部分 CSS 样式以节省空间，保持 V2.0 的样式逻辑，重点在功能)
+    # --- CSS ---
     css = f"""<style>
         :root {{ --primary: {CONFIG['primary_color']}; --bg: #0f172a; --text: #f8fafc; }}
         body {{ font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; }}
@@ -94,8 +98,10 @@ def generate_site():
         table {{ width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; }}
         th, td {{ padding: 15px; border-bottom: 1px solid #334155; text-align: left; }}
         th {{ background: #020617; color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; }}
+        tr:hover {{ background: #2d3748; }}
     </style>"""
     
+    # --- 表格生成 ---
     table_html = "<table><thead><tr>"
     hidden_cols = ['Affiliate_Link', 'Description', 'Badge', 'Link']
     valid_headers = [h for h in headers if h not in hidden_cols]
@@ -118,6 +124,7 @@ def generate_site():
         table_html += f'<td><a href="{link}" target="_blank" rel="nofollow sponsored" class="btn">Check Price</a></td></tr>'
     table_html += "</tbody></table>"
 
+    # --- 首页 Index.html ---
     index_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,6 +133,7 @@ def generate_site():
     <title>{CONFIG['site_name']} | Best of {CONFIG['year']}</title>
     <meta name="description" content="Compare the best {CONFIG['niche_keywords']} options. Unbiased reviews and pricing tables.">
     <link rel="canonical" href="{CONFIG['domain']}">
+    {ga_script} 
     {css}
 </head>
 <body>
@@ -144,7 +152,7 @@ def generate_site():
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(index_content)
 
-    # --- 生成 Sitemap.xml (Google 亲爹) ---
+    # --- Sitemap ---
     sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
    <url>
@@ -165,24 +173,17 @@ def generate_site():
     with open('sitemap.xml', 'w', encoding='utf-8') as f:
         f.write(sitemap_content)
     
-    # --- 生成 Robots.txt (爬虫指引) ---
-    robots_content = f"""User-agent: *
-Allow: /
-Sitemap: {CONFIG['domain']}/sitemap.xml"""
+    # --- Robots, Privacy, Terms ---
     with open('robots.txt', 'w', encoding='utf-8') as f:
-        f.write(robots_content)
+        f.write(f"User-agent: *\nAllow: /\nSitemap: {CONFIG['domain']}/sitemap.xml")
 
-    # --- 生成 Privacy Policy (通用模板) ---
-    privacy_content = f"""<!DOCTYPE html><html><head><title>Privacy Policy - {CONFIG['site_name']}</title>{css}</head><body>{nav_html}<div style="max-width:800px; margin:40px auto; padding:20px;"><h1>Privacy Policy</h1><p>Last updated: {datetime.datetime.now().strftime('%B %d, %Y')}</p><p>Welcome to {CONFIG['site_name']}. We respect your privacy.</p><h2>Information We Collect</h2><p>We do not collect personal data directly. We use generic analytics tools.</p><h2>Affiliate Disclosure</h2><p>We participate in affiliate programs and may earn commissions.</p></div>{footer_html}</body></html>"""
     with open('privacy.html', 'w', encoding='utf-8') as f:
-        f.write(privacy_content)
-
-    # --- 生成 Terms of Use (通用模板) ---
-    terms_content = f"""<!DOCTYPE html><html><head><title>Terms of Use - {CONFIG['site_name']}</title>{css}</head><body>{nav_html}<div style="max-width:800px; margin:40px auto; padding:20px;"><h1>Terms of Use</h1><p>By using {CONFIG['site_name']}, you agree to these terms.</p><h2>Content</h2><p>Our content is for informational purposes only. Prices may change.</p><h2>Liability</h2><p>We are not liable for any decisions made based on this data.</p></div>{footer_html}</body></html>"""
+        f.write(f"<!DOCTYPE html><html><head><title>Privacy Policy</title>{ga_script}{css}</head><body>{nav_html}<div style='max-width:800px; margin:40px auto; padding:20px;'><h1>Privacy Policy</h1><p>We use cookies (Google Analytics) to improve experience.</p></div>{footer_html}</body></html>")
+    
     with open('terms.html', 'w', encoding='utf-8') as f:
-        f.write(terms_content)
+        f.write(f"<!DOCTYPE html><html><head><title>Terms of Use</title>{ga_script}{css}</head><body>{nav_html}<div style='max-width:800px; margin:40px auto; padding:20px;'><h1>Terms of Use</h1><p>Standard terms apply.</p></div>{footer_html}</body></html>")
 
-    print("✅ All Files Generated: index.html, sitemap.xml, privacy.html, terms.html")
+    print("✅ All Files Generated with GA Code.")
 
 if __name__ == "__main__":
     generate_site()
