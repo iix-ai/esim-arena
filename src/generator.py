@@ -6,8 +6,8 @@ import shutil
 import sys
 import base64
 
-# Tiandao eSIM Generator V2.1 (Final Fixed)
-# 修复：首页缺失 safePopup 函数导致红条不弹窗的问题
+# Tiandao eSIM Generator V4.0 (Strict Exit Intent)
+# 核心逻辑：Mouseleave Top Edge + LocalStorage Lock (全站只弹一次) + Position Fixed
 
 class ESIMGenerator:
     def __init__(self):
@@ -19,7 +19,6 @@ class ESIMGenerator:
         self.generated_urls = []
         self.config = self.load_config()
 
-        # eSIM 域名修正字典 (确保 Logo 能抓取到)
         self.domain_map = {
             "Airalo": "airalo.com",
             "Holafly": "holafly.com",
@@ -82,39 +81,47 @@ class ESIMGenerator:
         if clean in self.domain_map: return self.domain_map[clean]
         return f"{clean.lower().replace(' ', '')}.com"
 
-    # --- 统一的 JS 脚本 ---
+    # --- 【核心逻辑】全站统一的“离去挽留”脚本 ---
     def get_common_script(self):
         return """
         <script>
-            // 智能弹窗逻辑：统一处理入口
-            function safePopup() {
-                // 核心判断：如果 localStorage 里没有记录，才弹窗
-                if (!localStorage.getItem('popupShown')) {
-                    var popup = document.getElementById('exitPopup');
-                    if(popup) {
-                        popup.style.display = 'flex';
-                        // 标记已显示，防止刷新或重复触发骚扰用户
-                        localStorage.setItem('popupShown', 'true');
-                    }
+            // 1. 定义核心弹窗函数
+            function triggerExitPopup() {
+                // 严谨判断：如果 localStorage 里已经有记录，说明这人以前弹过了，坚决不弹第二次
+                if (localStorage.getItem('hasSeenExitPopup') === 'yes') {
+                    return; // 直接结束，不打扰用户
+                }
+                
+                // 如果没弹过，显示弹窗
+                var popup = document.getElementById('exitPopup');
+                if (popup) {
+                    popup.style.display = 'flex';
+                    // 立即写入记录：这人已经挽留过了
+                    localStorage.setItem('hasSeenExitPopup', 'yes');
                 }
             }
 
-            // 1. Exit Intent (鼠标快速移出浏览器顶部)
-            document.addEventListener('mouseleave', (e) => {
+            // 2. 监听鼠标移出浏览器窗口 (Exit Intent)
+            // 无论页面滚动到哪里，只要鼠标穿过浏览器【上边缘】，e.clientY 都会小于 0
+            document.addEventListener('mouseleave', function(e) {
                 if (e.clientY < 0) {
-                    safePopup();
+                    triggerExitPopup();
                 }
             });
-            
-            // 2. 绑定关闭按钮事件
+
+            // 3. 关闭按钮逻辑
             function closePopup() {
                 document.getElementById('exitPopup').style.display = 'none';
+            }
+            
+            // 4. (可选) 如果用户点击了 TopBar，也算触发一次挽留，避免重复
+            function topBarClick() {
+                triggerExitPopup();
             }
         </script>
         """
 
     def generate_css(self):
-        # 配色：使用旅游绿 (#059669) 和 活力橙 (#f59e0b)
         css_content = """
         :root { --primary: #059669; --secondary: #047857; --accent: #f59e0b; --bg: #f0fdf4; --text: #064e3b; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
@@ -124,7 +131,7 @@ class ESIMGenerator:
         .top-bar { 
             position: sticky; 
             top: 0; 
-            z-index: 9999; 
+            z-index: 9000; 
             background: var(--accent); 
             color: white; 
             text-align: center; 
@@ -138,7 +145,7 @@ class ESIMGenerator:
         }
         .top-bar:hover { background: #d97706; text-decoration: underline; }
         
-        /* Headers - 绿色渐变 */
+        /* Headers */
         header { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); color: white; border-radius: 0 0 20px 20px; margin-bottom: 40px; }
         h1 { font-size: 2.5rem; margin: 0 0 15px 0; letter-spacing: -1px; }
         .subtitle { font-size: 1.2rem; color: #a7f3d0; max-width: 600px; margin: 0 auto; }
@@ -181,8 +188,20 @@ class ESIMGenerator:
         footer { text-align: center; margin-top: auto; color: #64748b; font-size: 0.9rem; padding: 40px 0; background: #fff; border-top: 1px solid #f1f5f9; }
         .disclosure { background: #ecfdf5; color: #065f46; padding: 15px; font-size: 0.85rem; border: 1px solid #6ee7b7; border-radius: 8px; display: inline-block; margin-top: 20px; max-width: 800px; line-height: 1.5; }
         
-        /* Popup */
-        .exit-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        /* Popup - Position Fixed 保证无论滚到哪里都在屏幕中间 */
+        .exit-popup { 
+            display: none; 
+            position: fixed; /* 关键：固定在视口，不受滚动影响 */
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            z-index: 99999; /* 最高层级 */
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(5px); 
+        }
         .popup-box { background: white; padding: 40px; border-radius: 16px; text-align: center; max-width: 400px; position: relative; animation: popIn 0.3s ease; }
         @keyframes popIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         .close-btn { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 24px; color: #cbd5e1; }
@@ -198,8 +217,6 @@ class ESIMGenerator:
             <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','{self.config['google_analytics_id']}');</script>"""
         
         schema_html = f'<script type="application/ld+json">{schema_json}</script>' if schema_json else ""
-
-        # Favicon: 飞机 Emoji (SVG + 字体兼容)
         favicon_base64 = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><style>text{font-family:system-ui,sans-serif}</style><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>"
 
         return f"""<head>
@@ -272,8 +289,8 @@ class ESIMGenerator:
                 </td>
             </tr>"""
 
-        # 【Top Bar】绑定 safePopup
-        top_bar_html = f'''<div class="top-bar" onmouseenter="safePopup()">{self.config["top_bar"]["text"]}</div>''' if self.config['top_bar']['enabled'] else ""
+        # Top Bar 只触发点击挽留，不自动触发，以免误判
+        top_bar_html = f'''<div class="top-bar" onclick="topBarClick()">{self.config["top_bar"]["text"]}</div>''' if self.config['top_bar']['enabled'] else ""
 
         html = f"""<!DOCTYPE html><html lang="en">
         {self.get_head_html(f"Best Travel eSIMs {self.config.get('year', '2026')}", "Compare top eSIMs.")}
@@ -324,7 +341,7 @@ class ESIMGenerator:
             if not long_review or len(long_review) < 50:
                 long_review = f"<h3>Why choose {provider}?</h3><p>Detailed review coming soon...</p>"
 
-            top_bar_html = f'''<div class="top-bar" onmouseenter="safePopup()">✈️ Traveling? Get 15% OFF eSIMs!</div>'''
+            top_bar_html = f'''<div class="top-bar" onclick="topBarClick()">✈️ Traveling? Get 15% OFF eSIMs!</div>'''
             disclaimer = self.config.get('legal', {}).get('disclosure', '')
 
             html = f"""<!DOCTYPE html><html lang="en">
@@ -369,32 +386,4 @@ class ESIMGenerator:
 
     def generate_sitemap(self):
         base_url = self.config.get('domain', 'https://esim.ii-x.com')
-        xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        xml += f'<url><loc>{base_url}/</loc><priority>1.0</priority></url>\n'
-        for url in self.generated_urls: xml += f'<url><loc>{base_url}/{url}</loc><priority>0.8</priority></url>\n'
-        xml += '</urlset>'
-        with open(os.path.join(self.output_dir, 'sitemap.xml'), 'w', encoding='utf-8') as f: f.write(xml)
-        with open(os.path.join(self.output_dir, 'robots.txt'), 'w') as f: f.write(f"User-agent: *\nAllow: /\nSitemap: {base_url}/sitemap.xml")
-
-    def run(self):
-        self.log("🚀 Starting eSIM Generator V2.1 (Fixed)...")
-        if os.path.exists(self.output_dir): 
-            try: shutil.rmtree(self.output_dir)
-            except: pass
-        os.makedirs(self.output_dir)
-        self.generate_css()
-        esims = self.load_data()
-        if not esims:
-            with open(os.path.join(self.output_dir, 'index.html'), 'w', encoding='utf-8') as f: f.write("<h1>Coming Soon</h1>")
-            return
-        try:
-            self.generate_index(esims)
-            self.generate_details(esims)
-            self.generate_legal()
-            self.generate_sitemap()
-            self.log("✅ Build Complete.")
-        except Exception as e: self.log(f"❌ BUILD FAILED: {e}")
-
-if __name__ == "__main__":
-    gen = ESIMGenerator()
-    gen.run()
+        xml = '<?xml version="1.0" encoding
