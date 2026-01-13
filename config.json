@@ -4,6 +4,12 @@
   "year": "2026",
   "google_analytics_id": "G-LKFYQ2C3YV",
   
+  "seo_defaults": {
+    "site_description": "Compare the best eSIMs for travel in 2026. Avoid roaming fees with Airalo, Holafly, and Nomad. Instant activation & unlimited data plans.",
+    "keywords": "best esim, travel esim, cheap data, airalo vs holafly, international data",
+    "author": "Connectivity Labs"
+  },
+
   "affiliate_map": {
     "Airalo": "https://airalo.com/...",
     "Holafly": "https://holafly.com/...",
@@ -13,7 +19,7 @@
   "top_bar": {
     "enabled": true,
     "text": "✈️ Traveling soon? Get 15% OFF your first eSIM!",
-    "link": "#"
+    "link": "#ranking"
   },
 
   "legal": {
