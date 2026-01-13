@@ -1,11 +1,22 @@
 {
-  "site_name": "Global Travel eSIM | 2026 Best Plans",
+  "site_name": "Global eSIM Finder",
   "domain": "https://esim.ii-x.com",
-  "niche_keywords": "eSIM, Travel Data, Roaming, Holafly, Airalo",
-  "hero_title": "Stop Paying Roaming Fees",
-  "primary_color": "#10b981",
-  "data_file": "esim_raw.csv",
-  "icon": "📲",
   "year": "2026",
-  "google_analytics_id": "G-LKFYQ2C3YV"
+  "google_analytics_id": "G-LKFYQ2C3YV",
+  
+  "affiliate_map": {
+    "Airalo": "https://airalo.com/...",
+    "Holafly": "https://holafly.com/...",
+    "Nomad": "https://getnomad.app/..."
+  },
+
+  "top_bar": {
+    "enabled": true,
+    "text": "✈️ Traveling soon? Get 15% OFF your first eSIM!",
+    "link": "#"
+  },
+
+  "legal": {
+    "disclosure": "Advertiser Disclosure: We help travelers stay connected. We may earn a commission if you buy through our links."
+  }
 }
