@@ -6,8 +6,8 @@ import shutil
 import sys
 import base64
 
-# Tiandao eSIM Generator V2.0 (Final Stable)
-# 核心特性：智能弹窗逻辑(防骚扰)、Sticky Top Bar、Base64图标、零依赖
+# Tiandao eSIM Generator V2.1 (Final Fixed)
+# 修复：首页缺失 safePopup 函数导致红条不弹窗的问题
 
 class ESIMGenerator:
     def __init__(self):
@@ -82,7 +82,7 @@ class ESIMGenerator:
         if clean in self.domain_map: return self.domain_map[clean]
         return f"{clean.lower().replace(' ', '')}.com"
 
-    # --- 统一的 JS 脚本 (核心修复点) ---
+    # --- 统一的 JS 脚本 ---
     def get_common_script(self):
         return """
         <script>
@@ -272,7 +272,7 @@ class ESIMGenerator:
                 </td>
             </tr>"""
 
-        # 【核心修复】Top Bar 使用 onmouseenter 调用 safePopup (防止乱弹)
+        # 【Top Bar】绑定 safePopup
         top_bar_html = f'''<div class="top-bar" onmouseenter="safePopup()">{self.config["top_bar"]["text"]}</div>''' if self.config['top_bar']['enabled'] else ""
 
         html = f"""<!DOCTYPE html><html lang="en">
@@ -377,7 +377,7 @@ class ESIMGenerator:
         with open(os.path.join(self.output_dir, 'robots.txt'), 'w') as f: f.write(f"User-agent: *\nAllow: /\nSitemap: {base_url}/sitemap.xml")
 
     def run(self):
-        self.log("🚀 Starting eSIM Generator V2.0...")
+        self.log("🚀 Starting eSIM Generator V2.1 (Fixed)...")
         if os.path.exists(self.output_dir): 
             try: shutil.rmtree(self.output_dir)
             except: pass
