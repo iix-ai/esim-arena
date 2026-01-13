@@ -87,9 +87,8 @@ class ESIMGenerator:
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; width: 100%; box-sizing: border-box; flex: 1; }
         
-        /* Top Bar */
-        .top-bar { background: var(--accent); color: white; text-align: center; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s; user-select: none; }
-        .top-bar:hover { background: #d97706; text-decoration: underline; }
+        /* Top Bar - 冻结 + 鼠标滑过触发区域 */
+        .top-bar {position: sticky; top: 0; z-index: 1000; background: var(--accent); color: white; text-align: center; padding: 12px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s; }
         
         /* Headers - 绿色渐变 */
         header { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); color: white; border-radius: 0 0 20px 20px; margin-bottom: 40px; }
@@ -356,3 +355,4 @@ class ESIMGenerator:
 if __name__ == "__main__":
     gen = ESIMGenerator()
     gen.run()
+
