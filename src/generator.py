@@ -386,4 +386,32 @@ class ESIMGenerator:
 
     def generate_sitemap(self):
         base_url = self.config.get('domain', 'https://esim.ii-x.com')
-        xml = '<?xml version="1.0" encoding
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        xml += f'<url><loc>{base_url}/</loc><priority>1.0</priority></url>\n'
+        for url in self.generated_urls: xml += f'<url><loc>{base_url}/{url}</loc><priority>0.8</priority></url>\n'
+        xml += '</urlset>'
+        with open(os.path.join(self.output_dir, 'sitemap.xml'), 'w', encoding='utf-8') as f: f.write(xml)
+        with open(os.path.join(self.output_dir, 'robots.txt'), 'w') as f: f.write(f"User-agent: *\nAllow: /\nSitemap: {base_url}/sitemap.xml")
+
+    def run(self):
+        self.log("🚀 Starting eSIM Generator V4.0...")
+        if os.path.exists(self.output_dir): 
+            try: shutil.rmtree(self.output_dir)
+            except: pass
+        os.makedirs(self.output_dir)
+        self.generate_css()
+        esims = self.load_data()
+        if not esims:
+            with open(os.path.join(self.output_dir, 'index.html'), 'w', encoding='utf-8') as f: f.write("<h1>Coming Soon</h1>")
+            return
+        try:
+            self.generate_index(esims)
+            self.generate_details(esims)
+            self.generate_legal()
+            self.generate_sitemap()
+            self.log("✅ Build Complete.")
+        except Exception as e: self.log(f"❌ BUILD FAILED: {e}")
+
+if __name__ == "__main__":
+    gen = ESIMGenerator()
+    gen.run()
