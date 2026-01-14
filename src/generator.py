@@ -401,6 +401,7 @@ class ESIMGenerator:
                 {self.get_common_script()}
             </body></html>"""
             with open(os.path.join(self.output_dir, slug), 'w', encoding='utf-8') as f: f.write(html)
+            self.generated_urls.append(slug)
 
     def generate_legal(self):
         for page in ['privacy', 'terms']:
@@ -440,3 +441,4 @@ class ESIMGenerator:
 if __name__ == "__main__":
     gen = ESIMGenerator()
     gen.run()
+
